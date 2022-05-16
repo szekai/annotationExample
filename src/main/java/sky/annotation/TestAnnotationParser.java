@@ -4,6 +4,7 @@
  */
 package sky.annotation;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
@@ -25,10 +26,23 @@ public class TestAnnotationParser {
                     System.out.println("info is awesome!");
                     // try to invoke the method with param
                     method.invoke(
-                            Annotated.class.newInstance(),
+                            Annotated.class.getDeclaredConstructor().newInstance(),
                             info);
                 }
             }
         }
+    }
+
+    public <T> T parseField(Class<T> clazz) throws Exception{
+        var fields = clazz.getDeclaredFields();
+        var obj = clazz.getDeclaredConstructor().newInstance();
+        for(Field f: fields){
+            var fieldAnnotation = f.getAnnotation(Test2.class);
+            if(fieldAnnotation != null){
+                f.setAccessible(true);
+                f.set(obj, fieldAnnotation.info());
+            }
+        }
+        return obj;
     }
 }
